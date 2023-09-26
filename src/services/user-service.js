@@ -16,6 +16,32 @@ class UserService {
             return user;
         } catch (error) {
             console.log('Something went wrong in the service layer');
+            throw error;
+        }
+    }
+
+    async signIn(email, plainPassword) {
+        try {
+            // step 1 -> fetch the user using the email
+            
+            const user = await this.userRepository.getByEmail(email);
+
+            // step 2 -> compare incoming plain pass with stores encrypted pass
+
+            const passwordMatch = this.checkPassword(plainPassword, user.password);  
+            if(!passwordMatch) {
+                console.log("Password doesn't  mathch");
+                throw {error: 'Incorrect Password'};
+            }
+
+            //step 3 -> if pass match then create a token and send it to the user
+
+            const newJWT = this.createToken({email: user.email, id: user.id});
+            return newJWT;
+            
+        } catch (error) {
+            console.log('Something went wrong in the sign in process');
+            throw error;
         }
     }
 
